@@ -150,8 +150,6 @@ class ParticipantsController < ApplicationController
         ExpertizaLogger.info LoggerMessage.new(controller_name, @participant.name, "The change handle is saved successfully", request)
         redirect_to controller: 'student_task', action: 'view', id: @participant
       end
-    end
-   end
   end
 
   def delete_assignment_participant
