@@ -151,6 +151,7 @@ class ParticipantsController < ApplicationController
         redirect_to controller: 'student_task', action: 'view', id: @participant
       end
     end
+   end
   end
 
   def delete_assignment_participant
