@@ -128,7 +128,7 @@ class PopupController < ApplicationController
   end
 
   def build_tone_analysis_report
-    uri = WEBSERVICE_CONFIG [ 'sentiment_webservice_url' ] + "analyze_reviews_bulk"
+    uri = WEBSERVICE_CONFIG ['sentiment_webservice_url'] + "analyze_reviews_bulk"
     index = 0
     @sentiment_summary = []
     keys = @review_final_versions.keys
@@ -281,7 +281,7 @@ class PopupController < ApplicationController
 
       # calls web service
       heatmap_json = RestClient.post WEBSERVICE_CONFIG['heatmap_webservice_url'], contents.to_json, 
-	             content_type: 'application/json; charset=UTF-8', accept: :json
+	                             content_type: 'application/json; charset=UTF-8', accept: :json
 
       # store each URL into an array of URLS where the index is by review round
       @heatmap_urls[round] = JSON.parse(heatmap_json)
