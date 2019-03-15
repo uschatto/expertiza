@@ -6,25 +6,28 @@ class PopupController < ApplicationController
      'Teaching Assistant'].include? current_role_name
   end
 
-  # this can be called from "response_report" by clicking student names from instructor end.
-  def author_feedback_popup
-    @response_id = params[:response_id]
-    @reviewee_id = params[:reviewee_id]
-    unless @response_id.nil?
-      first_question_in_questionnaire = Answer.where(response_id: @response_id).first.question_id
+  def questionare_details_populate(response_id)
+    unless response_id.nil?
+      first_question_in_questionnaire = Answer.where(response_id: response_id).first.question_id
       questionnaire_id = Question.find(first_question_in_questionnaire).questionnaire_id
       questionnaire = Questionnaire.find(questionnaire_id)
       @maxscore = questionnaire.max_question_score
-      @scores = Answer.where(response_id: @response_id)
-      @response = Response.find(@response_id)
+      @scores = Answer.where(response_id: response_id)
+      @response = Response.find(response_id)
       @total_percentage = @response.average_score
       @sum = @response.total_score
       @total_possible = @response.maximum_score
     end
-
     @maxscore = 5 if @maxscore.nil?
+  end
 
-    unless @response_id.nil?
+  # this can be called from "response_report" by clicking student names from instructor end.
+  def author_feedback_popup
+    @response_id = params[:response_id]
+    questionare_details_populate(@response_id)
+    @reviewee_id = params[:reviewee_id]
+
+    return unless @response_id.nil?
       participant = Participant.find(@reviewee_id)
       @user = User.find(participant.user_id)
     end
@@ -38,7 +41,7 @@ class PopupController < ApplicationController
     @team_users = TeamsUser.where(team_id: params[:id])
 
     # id2 is a response_map id
-    unless params[:id2].nil?
+    return unless params[:id2].nil?
       participant_id = ResponseMap.find(params[:id2]).reviewer_id
       @reviewer_id = Participant.find(participant_id).user_id
       # get the last response in each round from response_map id
@@ -127,7 +130,7 @@ class PopupController < ApplicationController
   end
 
   def build_tone_analysis_report
-    uri =  WEBSERVICE_CONFIG['sentiment_webservice_url'] + "analyze_reviews_bulk"
+    uri = WEBSERVICE_CONFIG [ 'sentiment_webservice_url' ] + "analyze_reviews_bulk"
     index = 0
     @sentiment_summary = []
     keys = @review_final_versions.keys
@@ -168,7 +171,7 @@ class PopupController < ApplicationController
         end
       end
 
-      if !reviews.empty?
+      unless reviews.empty?
         index = 0
         revs = {
           reviews: reviews
@@ -186,7 +189,6 @@ class PopupController < ApplicationController
   end
 
   def build_tone_analysis_heatmap
-
     @heatmap_urls = []
     keys = @review_final_versions.keys
 
@@ -280,7 +282,8 @@ class PopupController < ApplicationController
       }
 
       # calls web service
-      heatmap_json = RestClient.post WEBSERVICE_CONFIG['heatmap_webservice_url'], contents.to_json, content_type: 'application/json; charset=UTF-8', accept: :json
+      heatmap_json = RestClient.post WEBSERVICE_CONFIG['heatmap_webservice_url'], contents.to_json, 
+	             content_type: 'application/json; charset=UTF-8', accept: :json
 
       # store each URL into an array of URLS where the index is by review round
       @heatmap_urls[round] = JSON.parse(heatmap_json)
@@ -300,17 +303,6 @@ class PopupController < ApplicationController
   def self_review_popup
     @response_id = params[:response_id]
     @user_fullname = params[:user_fullname]
-    unless @response_id.nil?
-      first_question_in_questionnaire = Answer.where(response_id: @response_id).first.question_id
-      questionnaire_id = Question.find(first_question_in_questionnaire).questionnaire_id
-      questionnaire = Questionnaire.find(questionnaire_id)
-      @maxscore = questionnaire.max_question_score
-      @scores = Answer.where(response_id: @response_id)
-      @response = Response.find(@response_id)
-      @total_percentage = @response.average_score
-      @sum = @response.total_score
-      @total_possible = @response.maximum_score
-    end
-    @maxscore = 5 if @maxscore.nil?
+    questionare_details_populate(@response_id)
   end
 end
