@@ -187,6 +187,7 @@ class PopupController < ApplicationController
   end
 
   def build_tone_analysis_heatmap
+    uri = WEBSERVICE_CONFIG ['heatmap_webservice_url']
     @heatmap_urls = []
     keys = @review_final_versions.keys
 
@@ -280,8 +281,7 @@ class PopupController < ApplicationController
       }
 
       # calls web service
-      heatmap_json = RestClient.post WEBSERVICE_CONFIG['heatmap_webservice_url'], contents.to_json, 
-	                             content_type: 'application/json; charset=UTF-8', accept: :json
+      heatmap_json = RestClient.post uri, contents.to_json, content_type: 'application/json; charset=UTF-8', accept: :json
 
       # store each URL into an array of URLS where the index is by review round
       @heatmap_urls[round] = JSON.parse(heatmap_json)
