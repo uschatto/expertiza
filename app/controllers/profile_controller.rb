@@ -15,7 +15,7 @@ class ProfileController < ApplicationController
       aq = AssignmentQuestionnaire.where(['user_id = ? and assignment_id is null and questionnaire_id is null', @user.id]).first
       aq.update_attributes(notification_limit: params[:assignment_questionnaire][:notification_limit])
     end
-    if @user.update_attributes(user_params)
+    if @user.update_attributes(params[:user])
       ExpertizaLogger.info LoggerMessage.new(controller_name, @user.name, "Your profile was successfully updated.", request)
       flash[:success] = 'Your profile was successfully updated.'
     else
@@ -26,29 +26,4 @@ class ProfileController < ApplicationController
     redirect_to controller: :profile, action: :edit
   end
 
-  private
-
-  def user_params
-    params.require(:user).permit(:name,
-                                 :crypted_password,
-                                 :role_id,
-                                 :password_salt,
-                                 :fullname,
-                                 :email,
-                                 :parent_id,
-                                 :private_by_default,
-                                 :mru_directory_path,
-                                 :email_on_review,
-                                 :email_on_submission,
-                                 :email_on_review_of_review,
-                                 :is_new_user,
-                                 :master_permission_granted,
-                                 :handle,
-                                 :digital_certificate,
-                                 :persistence_token,
-                                 :timezonepref,
-                                 :public_key,
-                                 :copy_of_emails,
-                                 :institution_id)
-  end
 end
