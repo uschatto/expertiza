@@ -25,5 +25,4 @@ class ProfileController < ApplicationController
 
     redirect_to controller: :profile, action: :edit
   end
-
 end
