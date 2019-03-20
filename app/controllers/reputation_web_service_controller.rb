@@ -5,7 +5,7 @@ require 'openssl'
 require 'base64'
 
 class ReputationWebServiceController < ApplicationController
-  @@request_body = ''
+  @request_body = ''
   @@response_body = ''
   @@assignment_id = ''
   @@another_assignment_id = ''
@@ -117,7 +117,7 @@ class ReputationWebServiceController < ApplicationController
   end
 
   def client
-    @request_body = @@request_body
+    #@request_body = @@request_body
     @response_body = @@response_body
     @max_assignment_id = Assignment.last.id
     @assignment = Assignment.find(@@assignment_id) rescue nil
@@ -144,9 +144,10 @@ class ReputationWebServiceController < ApplicationController
       case params[:assignment_id]
       when '724' # expert grades of Wiki 1a (724)
         if params[:another_assignment_id].to_i.zero?
-          req.body.prepend("\"expert_grades\": {\"submission23967\":93,\"submission23969\":89,\"submission23971\":95,\"submission23972\":86,\"submission23973\":91,
-			   \"submission23975\":94,\"submission23979\":90,\"submission23980\":94,\"submission23981\":87,\"submission23982\":79,
-			   \"submission23983\":91,\"submission23986\":92,\"submission23987\":91,\"submission23988\":93,\"submission23991\":98,
+          req.body.prepend("\"expert_grades\": {\"submission23967\":93,\"submission23969\":89,\"submission23971\":95,
+	                   \"submission23972\":86,\"submission23973\":91,\"submission23975\":94,\"submission23979\":90,
+			   \"submission23980\":94,\"submission23981\":87,\"submission23982\":79,\"submission23983\":91,
+			   \"submission23986\":92,\"submission23987\":91,\"submission23988\":93,\"submission23991\":98,
 			   \"submission23992\":91,\"submission23994\":87,\"submission23995\":93,\"submission23998\":92,\"submission23999\":87,
 			   \"submission24000\":93,\"submission24001\":93,\"submission24006\":96,\"submission24007\":87,\"submission24008\":92,
 			   \"submission24009\":92,\"submission24010\":93,\"submission24012\":94,\"submission24013\":96,
@@ -206,7 +207,7 @@ class ReputationWebServiceController < ApplicationController
     # "quiz_scores" : {"submission1" : {"stu1":100, "stu3":80}, "submission2":{"stu2":40, "stu1":60}}, #optional
     # "submission1": {"stu1":91, "stu3":99},"submission2": {"stu5":92, "stu8":90},"submission3": {"stu2":91, "stu4":88}}"
     req.body.prepend("{")
-    @@request_body = req.body
+    @request_body = req.body
     # puts 'This is the request prior to encryption: ' + req.body
     # puts
     # Encryption
