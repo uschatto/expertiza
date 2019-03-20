@@ -8,11 +8,11 @@ class ReputationWebServiceController < ApplicationController
   @request_body = ''
   @response_body = ''
   @assignment_id = ''
-  @@another_assignment_id = ''
-  @@round_num = ''
-  @@algorithm = ''
-  @@additional_info = ''
-  @@response = ''
+  @another_assignment_id = ''
+  @round_num = ''
+  @algorithm = ''
+  @additional_info = ''
+  @response = ''
 
   def action_allowed?
     ['Super-Administrator',
@@ -121,11 +121,11 @@ class ReputationWebServiceController < ApplicationController
     # @response_body = @@response_body
     @max_assignment_id = Assignment.last.id
     @assignment = Assignment.find(@assignment_id) rescue nil
-    @another_assignment = Assignment.find(@@another_assignment_id) rescue nil
-    @round_num = @@round_num
-    @algorithm = @@algorithm
-    @additional_info = @@additional_info
-    @response = @@response
+    @another_assignment = Assignment.find(@another_assignment_id) rescue nil
+    # @round_num = @@round_num
+    # @algorithm = @@algorithm
+    # @additional_info = @@additional_info
+    # @response = @@response
   end
 
   def send_post_request
@@ -135,12 +135,12 @@ class ReputationWebServiceController < ApplicationController
     req.body = json_generator(curr_assignment_id, params[:another_assignment_id].to_i, params[:round_num].to_i, 'peer review grades').to_json
     req.body[0] = '' # remove the first '{'
     @assignment_id = params[:assignment_id]
-    @@round_num = params[:round_num]
-    @@algorithm = params[:algorithm]
-    @@another_assignment_id = params[:another_assignment_id]
+    @round_num = params[:round_num]
+    @algorithm = params[:algorithm]
+    @another_assignment_id = params[:another_assignment_id]
 
     if params[:checkbox][:expert_grade] == 'Add expert grades'
-      @@additional_info = 'add expert grades'
+      @additional_info = 'add expert grades'
       case params[:assignment_id]
       when '724' # expert grades of Wiki 1a (724)
         if params[:another_assignment_id].to_i.zero?
@@ -185,11 +185,11 @@ class ReputationWebServiceController < ApplicationController
         req.body.prepend("\"expert_grades\": {\"submission25107\":76.6667,\"submission25109\":83.3333},")
       end
     elsif params[:checkbox][:hamer] == 'Add initial Hamer reputation values'
-      @@additional_info = 'add initial hamer reputation values'
+      @additional_info = 'add initial hamer reputation values'
     elsif params[:checkbox][:lauw] == 'Add initial Lauw reputation values'
-      @@additional_info = 'add initial lauw reputation values'
+      @additional_info = 'add initial lauw reputation values'
     elsif params[:checkbox][:quiz] == 'Add quiz scores'
-      @@additional_info = 'add quiz scores'
+      @additional_info = 'add quiz scores'
       quiz_str = json_generator(params[:assignment_id].to_i, params[:another_assignment_id].to_i, params[:round_num].to_i, 'quiz scores').to_json
       quiz_str[0] = ''
       quiz_str.prepend('"quiz_scores":{')
@@ -197,7 +197,7 @@ class ReputationWebServiceController < ApplicationController
       quiz_str = quiz_str.gsub('"N/A"', '20.0')
       req.body.prepend(quiz_str)
     else
-      @@additional_info = ''
+      @additional_info = ''
     end
 
     # Eg.
@@ -237,7 +237,7 @@ class ReputationWebServiceController < ApplicationController
     # puts "Response #{response.code} #{response.message}:
     # {response.body}"
     # puts
-    @@response = response
+    @response = response
     @response_body = response.body
 
     JSON.parse(response.body.to_s).each do |alg, list|
