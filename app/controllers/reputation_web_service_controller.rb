@@ -6,8 +6,8 @@ require 'base64'
 
 class ReputationWebServiceController < ApplicationController
   @request_body = ''
-  @@response_body = ''
-  @@assignment_id = ''
+  @response_body = ''
+  @assignment_id = ''
   @@another_assignment_id = ''
   @@round_num = ''
   @@algorithm = ''
@@ -117,10 +117,10 @@ class ReputationWebServiceController < ApplicationController
   end
 
   def client
-    #@request_body = @@request_body
-    @response_body = @@response_body
+    # @request_body = @@request_body
+    # @response_body = @@response_body
     @max_assignment_id = Assignment.last.id
-    @assignment = Assignment.find(@@assignment_id) rescue nil
+    @assignment = Assignment.find(@assignment_id) rescue nil
     @another_assignment = Assignment.find(@@another_assignment_id) rescue nil
     @round_num = @@round_num
     @algorithm = @@algorithm
@@ -134,7 +134,7 @@ class ReputationWebServiceController < ApplicationController
     curr_assignment_id = (params[:assignment_id].empty? ? '724' : params[:assignment_id])
     req.body = json_generator(curr_assignment_id, params[:another_assignment_id].to_i, params[:round_num].to_i, 'peer review grades').to_json
     req.body[0] = '' # remove the first '{'
-    @@assignment_id = params[:assignment_id]
+    @assignment_id = params[:assignment_id]
     @@round_num = params[:round_num]
     @@algorithm = params[:algorithm]
     @@another_assignment_id = params[:another_assignment_id]
@@ -238,7 +238,7 @@ class ReputationWebServiceController < ApplicationController
     # {response.body}"
     # puts
     @@response = response
-    @@response_body = response.body
+    @response_body = response.body
 
     JSON.parse(response.body.to_s).each do |alg, list|
       next unless alg == "Hamer" || alg == "Lauw"
