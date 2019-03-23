@@ -74,16 +74,16 @@ class SystemSettingsController < ApplicationController
   private
 
   def system_settings_params
-	  params.require(:system_settings).permit(:site_name,
-						  :site_subtitle,
-						  :footer_message,
-						  :public_role_id,
-						  :session_timeout,
-						  :default_markup_style_id,
-						  :site_default_page_id,
-						  :not_found_page_id,
-						  :permission_denied_page_id,
-						  :session_expired_page_id,
-						  :menu_depth)
+    params.require(:system_settings).permit(:site_name,
+                                            :site_subtitle,
+                                            :footer_message,
+                                            :public_role_id,
+                                            :session_timeout,
+                                            :default_markup_style_id,
+                                            :site_default_page_id,
+                                            :not_found_page_id,
+                                            :permission_denied_page_id,
+                                            :session_expired_page_id,
+                                            :menu_depth)
   end
 end

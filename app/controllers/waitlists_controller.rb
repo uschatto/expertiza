@@ -53,5 +53,5 @@ class WaitlistsController < ApplicationController
 
   def waitlist_params
     params.require(:waitlist)
-  end    
+  end   
 end
