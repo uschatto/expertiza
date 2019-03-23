@@ -26,7 +26,7 @@ class RolesController < ApplicationController
   end
 
   def create
-    @role = Role.new(params[:role])
+    @role = Role.new(role_params)
     if @role.save
       Role.rebuild_cache
       flash[:notice] = 'The role was successfully created.'
@@ -59,6 +59,12 @@ class RolesController < ApplicationController
   def destroy
     Role.find(params[:id]).destroy
     redirect_to Role
+  end
+
+  private
+
+  def role_params
+    params.require(:role).permit(:name, :parent_id, :description, :default_page_id)
   end
 
   protected

@@ -23,7 +23,7 @@ class StudentTeamsController < ApplicationController
         'Administrator',
         'Super-Administrator',
         'Student'].include? current_role_name and
-       ((%w[view].include? action_name) ? are_needed_authorizations_present?(params[:student_id], "reader", "reviewer", "submitter") : true)
+       %w[view].include? action_name ? are_needed_authorizations_present?(params[:student_id], "reader", "reviewer", "submitter") : true
       # make sure the student is the owner if they are trying to create it
       return current_user_id? student.user_id if %w[create].include? action_name
       # make sure the student belongs to the group before allowed them to try and edit or update
@@ -43,7 +43,7 @@ class StudentTeamsController < ApplicationController
     @received_invs = Invitation.where to_id: student.user.id, assignment_id: student.assignment.id, reply_status: 'W'
     # Get the current due dates
     @student.assignment.due_dates.each do |due_date|
-      if due_date.due_at > Time.now
+      if due_date.due_at > Time.zone.now
         @current_due_date = due_date
         break
       end
@@ -53,7 +53,10 @@ class StudentTeamsController < ApplicationController
 
     @users_on_waiting_list = (SignUpTopic.find(current_team.topic).users_on_waiting_list if @student.assignment.topics? && current_team && current_team.topic)
 
-    @teammate_review_allowed = true if @student.assignment.find_current_stage == 'Finished' || @current_due_date && (@current_due_date.teammate_review_allowed_id == 3 || @current_due_date.teammate_review_allowed_id == 2) # late(2) or yes(3)
+    @teammate_review_allowed = true if @student.assignment.find_current_stage == 'Finished' ||
+      @current_due_date && (@current_due_date.teammate_review_allowed_id == 3 ||
+        # late(2) or yes(3)
+        @current_due_date.teammate_review_allowed_id == 2)
   end
 
   def create
@@ -73,13 +76,12 @@ class StudentTeamsController < ApplicationController
       user = User.find student.user_id
       team.add_member user, team.parent_id
       team_created_successfully(team)
-      redirect_to view_student_teams_path student_id: student.id
 
     else
       flash[:notice] = 'That team name is already in use.'
       ExpertizaLogger.error LoggerMessage.new(controller_name, session[:user].name, 'Team name being created was already in use', request)
-      redirect_to view_student_teams_path student_id: student.id
     end
+    redirect_to view_student_teams_path student_id: student.id
   end
 
   def edit; end
@@ -87,7 +89,7 @@ class StudentTeamsController < ApplicationController
   def update
     matching_teams = AssignmentTeam.where name: params[:team][:name], parent_id: team.parent_id
     if matching_teams.length.zero?
-      if team.update_attribute('name', params[:team][:name])
+      if team.update_attributes('name', params[:team][:name])
         team_created_successfully
 
         redirect_to view_student_teams_path student_id: params[:student_id]
@@ -107,11 +109,11 @@ class StudentTeamsController < ApplicationController
   end
 
   def advertise_for_partners
-    Team.update_all advertise_for_partner: true, id: params[:team_id]
+    Team.update_attributes(advertise_for_partner: true, id: params[:team_id])
   end
 
   def remove_advertisement
-    Team.update_all advertise_for_partner: false, id: params[:team_id]
+    Team.update_attributes(advertise_for_partner: false, id: params[:team_id])
     redirect_to view_student_teams_path student_id: params[:team_id]
   end
 
