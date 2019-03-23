@@ -52,6 +52,6 @@ class WaitlistsController < ApplicationController
   private
 
   def waitlist_params
-    params.require(:waitlist)
+	  params.require(:waitlist).permit(:id, :page)
   end   
 end
