@@ -21,6 +21,19 @@ class TeamsUsersController < ApplicationController
     @team = Team.find(params[:id])
   end
 
+  def user_not_found?(user_name,is_assignment = true,id)
+    if (is_assignment == true)
+       @team_type = "Assignment"
+    else
+       @team_type = "Course"
+    end
+    url_participant_list = 
+      url_for controller: 'participants', action: 'list', id: id, model: @team_type, authorization: 'participant'
+    flash[:error] =
+          "\"#{user_name}\" is not a"\
+          "participant of the current #{@team_type}. Please <a href=\"#{url_participant_list}\">add</a> this user before continuing."
+  end
+
   def create
     user = User.find_by(name: params[:user][:name].strip)
     unless user
@@ -33,11 +46,7 @@ class TeamsUsersController < ApplicationController
     if team.is_a?(AssignmentTeam)
       assignment = Assignment.find(team.parent_id)
       if AssignmentParticipant.find_by(user_id: user.id, assignment_id: assignment.id).nil?
-        url_assignment_participant_list =
-          url_for controller: 'participants', action: 'list', id: assignment.id, model: 'Assignment', authorization: 'participant'
-        flash[:error] =
-          "\"#{user.name}\" is not a"\
-          "participant of the current assignment. Please <a href=\"#{url_assignment_participant_list}\">add</a> this user before continuing."
+        user_not_found?(user.name,true,assignment.id)
       else
         add_member_return = team.add_member(user, team.parent_id)
         flash[:error] = "This team already has the maximum number of members." if add_member_return == false
@@ -48,11 +57,7 @@ class TeamsUsersController < ApplicationController
     else # CourseTeam
       course = Course.find(team.parent_id)
       if CourseParticipant.find_by(user_id: user.id, parent_id: course.id).nil?
-        url_course_participant_list =
-          url_for controller: 'participants', action: 'list', id: course.id, model: 'Course', authorization: 'participant'
-        flash[:error] =
-          "\"#{user.name}\" is not a participant"\
-          "of the current course. Please <a href=\"#{url_course_participant_list}\">add</a> this user before continuing."
+	user_not_found?(user.name,false,course.id)
       else
         add_member_return = team.add_member(user)
         flash[:error] = "This team already has the maximum number of members." if add_member_return == false
