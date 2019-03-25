@@ -241,7 +241,7 @@ class ReputationWebServiceController < ApplicationController
     @response_body = response.body
 
     JSON.parse(response.body.to_s).each do |alg, list|
-      next unless alg == "Hamer" || alg == "Lauw"
+	    next unless %w["Hamer", "Lauw"].include?(alg)
       list.each do |id, rep|
         Participant.find_by(user_id: id).update(alg.to_sym => rep) unless /leniency/ =~ id.to_s
       end
